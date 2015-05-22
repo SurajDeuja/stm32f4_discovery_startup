@@ -1,4 +1,5 @@
-int main(int argc, char *argv[])
+int abcd = 0xaabbccdd;
+int main()
 {
 	return 0;
 }
