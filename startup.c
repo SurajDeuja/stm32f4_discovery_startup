@@ -26,20 +26,25 @@ unsigned int INTERRUPT_VECTOR[] = { (unsigned int) &_estack,
                                      0, /* IRQ0 */
                                      0, /* IRQ1 */}; 
 
+static void __disable_irq(void) {
+
+
+}
+
+static oivd __enable_irq(void) {
+
+}
+
 void __reset_handler(void)
 {
-	int i;
-	int *pisr_start = &_sisr_vector;
     int *psidata = &_sidata;
     int *psdata = &_sdata;
     int *pedata = &_edata;
     int *psbss = &_sbss;
     int *pebss = &_ebss;
 
-	/// Copy the interrupt table from memory to ISR vector table.
-	for (i = 0; i < sizeof(INTERRUPT_VECTOR)/sizeof(INTERRUPT_VECTOR[0]); i++) {
-		*pisr_start++ = INTERRUPT_VECTOR[i]; 
-	}
+    /// Disable irq
+    __disable_irq(); 
 
     /// Initialize data section
     while (psdata < pedata) {
@@ -51,6 +56,10 @@ void __reset_handler(void)
         *psbss++ = 0;
     }
 
+
+    ///enable irq
+    __enable_irq();
+    
     ///@todo Do more initialization of system clock and GPIO here 
 
     /// Now call the main function

@@ -9,7 +9,6 @@
 
 /// Some extern variables
 extern int _estack;
-extern int _sisr_vector;
 extern int _sidata;
 extern int _sdata;
 extern int _edata;
