@@ -14,6 +14,7 @@ SECTIONS
 	.isr_vector :
 	{
 		. = ALIGN(4);
+		_isr_vector = .;
 		KEEP(*(.isr_vector))
 		. = ALIGN(4);
 	} > FLASH
@@ -23,6 +24,8 @@ SECTIONS
 		. = ALIGN(4);
 		*(.text)
 		*(.text*)
+		*(.rodata)
+		*(.rodata*)
 
 		. = ALIGN(4);
 		_etext = .;
