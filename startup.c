@@ -43,19 +43,21 @@ void __start_sys_clk(void) {
 
     while(!(rcc->cr & RCC_CR_HSERDY)); // Wait until the HSE is ready
 
-   // rcc->apb1en |= RCC_APB1ENR_PWREN;   // Enable clock for power interface
+    rcc->apb1en |= RCC_APB1ENR_PWREN;   // Enable clock for power interface
+    rcc->cr |= PWR_CR_PMODE;
     rcc->cfgr |= RCC_CFGR_HPRE_DIV1;       // Set prescalars to 1 (168 MHz)
     rcc->cfgr |= RCC_CFGR_PPRE_DIV2;      // Set high speed APB2 prescalar to 2 (84 MHz)
     rcc->cfgr |= RCC_CFGR_PPRE_DIV4;     // Set low speed APB1 prescalar to 4 (42 MHz)
-    rcc->pllcfgr |= (PLL_M | PLL_N << 6 | RCC_PLLCFGR_PLLSRC_HSE | PLL_Q << 24);
+    rcc->pllcfgr |= PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16)| (RCC_PLLCFGR_PLLSRC_HSE) | PLL_Q << 24;
 
     rcc->cr |= RCC_CR_PLLON;		// Enable PLL
 
     while(!(rcc->cr & RCC_CR_PLLRDY));	// Wait until PLL ready
 
-    rcc->cfgr &= (~0x3);	// Enable Pll as system clock
+    rcc->cfgr &= ~(RCC_CFGR_SW);	// Enable Pll as system clock
+    rcc->cfgr |= RCC_CFGR_SW_PLL;
 
-    while((rcc->cfgr & 0xc) != 0x8); // Wait until pll is system clock
+//    while((rcc->cfgr & 0xc) != 0x8); // Wait until pll is system clock
 
 }
 

@@ -1,10 +1,10 @@
 #ifndef __RCC_H
 #define __RCC_H
 
-#define PLL_N   336
-#define PLL_M   8
-#define PLL_P   0
-#define PLL_Q   7
+#define PLL_N   (336)
+#define PLL_M   (0x8)
+#define PLL_P   (0x2)
+#define PLL_Q   (0x7)
 
 
 #define REG_RCC_ADDR            (0x40023800)
@@ -18,6 +18,10 @@
 #define RCC_PLLCFGR_PLLSRC_HSE  (0x400000)
 #define RCC_CR_PLLON            (0x1000000)
 #define RCC_CR_PLLRDY           (0x2000000)
+#define RCC_APB1ENR_PWREN       (0x10000000)
+#define PWR_CR_PMODE            (0x4000)
+#define RCC_CFGR_SW             (0x3)
+#define RCC_CFGR_SW_PLL         (0x2)
 
 /** RCC register definition */
 struct reg_rcc {
