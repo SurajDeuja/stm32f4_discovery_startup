@@ -6,6 +6,7 @@
 #include "reg.h"
 #include "startup.h"
 #include "rcc.h"
+#include "flash.h"
 
 /// Interrupt vector table
 unsigned int INTERRUPT_VECTOR[] __attribute__((section(".isr_vector"))) = {
@@ -32,13 +33,15 @@ unsigned int INTERRUPT_VECTOR[] __attribute__((section(".isr_vector"))) = {
  * @brief Relocates the vector table offset to
  * the symbol defined in linker script.
  */
-static void __relocate_vector_table(void)
+ void __relocate_vector_table(void)
 {
 	__REG(__VTOR) = (unsigned int) &_isr_vector;
 }
 
 void __start_sys_clk(void) {
     struct reg_rcc *rcc = (struct reg_rcc *) REG_RCC_ADDR;
+    struct flash_reg *flash = (struct flash_reg *) FLASH_BASE;
+
     rcc->cr |= RCC_CR_HSEON; // Enable HSE clock
 
     while(!(rcc->cr & RCC_CR_HSERDY)); // Wait until the HSE is ready
@@ -54,10 +57,12 @@ void __start_sys_clk(void) {
 
     while(!(rcc->cr & RCC_CR_PLLRDY));	// Wait until PLL ready
 
-    rcc->cfgr &= ~(RCC_CFGR_SW);	// Enable Pll as system clock
+    flash->acr = FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
+
+    rcc->cfgr &= (unsigned int)~(RCC_CFGR_SW);	// Enable Pll as system clock
     rcc->cfgr |= RCC_CFGR_SW_PLL;
 
-//    while((rcc->cfgr & 0xc) != 0x8); // Wait until pll is system clock
+    while((rcc->cfgr & 0xc) != 0x8); // Wait until pll is system clock
 
 }
 
@@ -82,14 +87,14 @@ static void __start(void)
     ///@todo Do more initialization of system clock and GPIO here
 
     /// Now call the main function
-    main();
-    __exit();
 }
 
 void __reset_handler(void) {
     __relocate_vector_table();
-    __start_sys_clk();
     __start();
+    __start_sys_clk();
+    main();
+    __exit();
 }
 
 /**
