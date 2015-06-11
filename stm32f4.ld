@@ -1,4 +1,4 @@
-ENTRY(__reset_handler)
+ENTRY(reset_handler)
 
 _estack         = 0x10000000 + 64K;
 
@@ -29,7 +29,7 @@ SECTIONS
 
 		. = ALIGN(4);
 		_etext = .;
-		_exit = .;
+        	_exit = .;
 	} >FLASH
 
 	_sidata = .;

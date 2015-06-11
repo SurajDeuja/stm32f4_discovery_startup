@@ -7,11 +7,9 @@
 #define PLL_Q   (0x7)
 
 
-#define REG_RCC_ADDR            (0x40023800)
 
 #define RCC_CR_HSEON            (0x10000)
 #define RCC_CR_HSERDY           (0x20000)
-// pwer en 0x10000000
 #define RCC_CFGR_HPRE_DIV1      (0x0)
 #define RCC_CFGR_PPRE_DIV2      (0x8000)
 #define RCC_CFGR_PPRE_DIV4      (0x1400)
@@ -19,12 +17,12 @@
 #define RCC_CR_PLLON            (0x1000000)
 #define RCC_CR_PLLRDY           (0x2000000)
 #define RCC_APB1ENR_PWREN       (0x10000000)
-#define PWR_CR_PMODE            (0x4000)
+//#define PWR_CR_PMODE            (0x4000)
 #define RCC_CFGR_SW             (0x3)
 #define RCC_CFGR_SW_PLL         (0x2)
 
 /** RCC register definition */
-struct reg_rcc {
+struct rcc_reg {
     unsigned volatile int cr;           /// Clock Control         offset 0x00
     unsigned volatile int pllcfgr;      /// PLL configuration     offset 0x04
     unsigned volatile int cfgr;         /// Clock Configuration   offset 0x08

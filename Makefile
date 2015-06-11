@@ -11,12 +11,15 @@ OBJCOPY=arm-none-eabi-objcopy
 
 OBJDIR = build
 
+INCLUDES= -I . \
+	  -I inc
+
 CFLAGS  = -g3 -Wall -Wno-missing-braces -std=c99
 CFLAGS += -mthumb -mcpu=cortex-m4 
 CFLAGS += -mfloat-abi=soft -std=gnu99
 LDFLAGS = -nostdlib -Wl,-Map,$(OBJDIR)/$(PROJ_NAME).map -g -T$(STD_PERIPH)/stm32f4.ld
 
-CFLAGS += -I.
+CFLAGS += $(INCLUDES)
 
 #SRCS += 
 

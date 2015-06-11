@@ -3,15 +3,16 @@
  *
  *  @author Suraj Deuja
  */
-#include "reg.h"
-#include "startup.h"
-#include "rcc.h"
+
+#include "addr.h"
 #include "flash.h"
+#include "rcc.h"
+#include "startup.h"
 
 /// Interrupt vector table
 unsigned int INTERRUPT_VECTOR[] __attribute__((section(".isr_vector"))) = {
     (unsigned int) &_estack,
-    (unsigned int) __reset_handler,
+    (unsigned int) reset_handler,
     0,                                                      /* NMI */
     0,                                                      /* Hard fault */
     0,                                                      /* Memory management fault */
@@ -33,13 +34,14 @@ unsigned int INTERRUPT_VECTOR[] __attribute__((section(".isr_vector"))) = {
  * @brief Relocates the vector table offset to
  * the symbol defined in linker script.
  */
- void __relocate_vector_table(void)
+void relocate_vector_table(void)
 {
-	__REG(__VTOR) = (unsigned int) &_isr_vector;
+        volatile unsigned int * const vtor = (unsigned int *)VTOR_BASE;
+        *vtor = (unsigned int)&_isr_vector;
 }
 
-void __start_sys_clk(void) {
-    struct reg_rcc *rcc = (struct reg_rcc *) REG_RCC_ADDR;
+void start_sys_clk(void) {
+    struct rcc_reg *rcc = (struct rcc_reg *) RCC_BASE;
     struct flash_reg *flash = (struct flash_reg *) FLASH_BASE;
 
     rcc->cr |= RCC_CR_HSEON; // Enable HSE clock
@@ -47,7 +49,7 @@ void __start_sys_clk(void) {
     while(!(rcc->cr & RCC_CR_HSERDY)); // Wait until the HSE is ready
 
     rcc->apb1en |= RCC_APB1ENR_PWREN;   // Enable clock for power interface
-    rcc->cr |= PWR_CR_PMODE;
+  //  rcc->cr |= PWR_CR_PMODE;
     rcc->cfgr |= RCC_CFGR_HPRE_DIV1;       // Set prescalars to 1 (168 MHz)
     rcc->cfgr |= RCC_CFGR_PPRE_DIV2;      // Set high speed APB2 prescalar to 2 (84 MHz)
     rcc->cfgr |= RCC_CFGR_PPRE_DIV4;     // Set low speed APB1 prescalar to 4 (42 MHz)
@@ -66,7 +68,7 @@ void __start_sys_clk(void) {
 
 }
 
-static void __start(void)
+static void intialize_sections(void)
 {
     int *psidata = &_sidata;
     int *psdata = &_sdata;
@@ -84,32 +86,31 @@ static void __start(void)
         *psbss++ = 0;
     }
 
-    ///@todo Do more initialization of system clock and GPIO here
-
-    /// Now call the main function
-}
-
-void __reset_handler(void) {
-    __relocate_vector_table();
-    __start();
-    __start_sys_clk();
-    main();
-    __exit();
 }
 
 /**
  * @brief Handles return from main
  */
-void __exit(void)
+static void exit_handler(void)
 {
     /// returned from the main function. Nothing to do so just sit here
 	while(1);
 }
 
+void reset_handler(void) {
+    relocate_vector_table();
+    intialize_sections();
+    start_sys_clk();
+    main();
+    exit_handler();
+}
+
+
+
 /**
  * @brief Handler for all undefined exception handler
  */
-void __default_handler(void)
+void default_handler(void)
 {
     /// default handler for all isr routine
 	while(1);
